@@ -159,7 +159,7 @@
 #ifdef CONFIG_VMSPLIT_2G
 #define MSM_PMEM_SF_SIZE    0x1E00000
 #else
-#define MSM_PMEM_SF_SIZE    0x1700000	//0x1300000
+#define MSM_PMEM_SF_SIZE    0x1300000
 #endif
 
 /* } FIHTDC, Div2-SW2-BSP, Ming, PMEM */
