@@ -22,4 +22,6 @@ obj-$(CONFIG_SYS_HYPERVISOR) += hypervisor.o
 ifeq ($(CONFIG_DEBUG_DRIVER),y)
 EXTRA_CFLAGS += -DDEBUG
 endif
-
+ifeq ($(CONFIG_GENLOCK),y)
+obj-$(CONFIG_MODULES)	+= genlock.o
+endif
