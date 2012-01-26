@@ -161,7 +161,7 @@
 /* FIHTDC, Div2-SW2-BSP SungSCLee, HDMI { */
 #define MSM_FB_SIZE		0xA00000       ///0x500000
 /* } FIHTDC, Div2-SW2-BSP SungSCLee, HDMI */
-#define MSM_GPU_PHYS_SIZE       SZ_4M
+#define MSM_GPU_PHYS_SIZE       SZ_2M
 #define MSM_PMEM_ADSP_SIZE      0x2000000  //SW2-5-CL-Camera-720P-00*
 #define MSM_FLUID_PMEM_ADSP_SIZE	0x2800000
 #define PMEM_KERNEL_EBI1_SIZE   0x600000
@@ -3687,7 +3687,6 @@ static struct android_usb_product usb_products[] = {
 
 #endif
 //Div6-D1-JL-UsbPidVid-02+}
-
 
 static struct usb_mass_storage_platform_data mass_storage_pdata = {
 //Div2D5-LC-BSP-Implement_Dual_SD_Card-00 *[
