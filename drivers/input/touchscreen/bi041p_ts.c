@@ -51,6 +51,7 @@ module_param_named(
 
 static struct workqueue_struct *fwupdate_wq;
 static struct workqueue_struct *resume_wq;
+static struct workqueue_struct *bi041p_wq;
 
 struct bi041p_info {
     struct i2c_client *client;
@@ -321,17 +322,11 @@ static void bi041p_isr_workqueue(struct work_struct *work) {
 	else if ((buffer[0] == 0x55) && (buffer[1] == 0x55) && (buffer[2] == 0x55) && (buffer[3] == 0x55)) {
 		printk(KERN_INFO "[Touchscreen] %s: Receive the hello packet!\n", __func__);
 	}
-	
-	enable_irq(bi041p.client->irq);
 }
 
 static irqreturn_t bi041p_isr(int irq, void * handle)
 {
-    struct bi041p_info *ts = handle;
-	
-	disable_irq_nosync(bi041p.client->irq);
-	schedule_work(&ts->wqueue);
-	
+        queue_work(bi041p_wq, &bi041p.wqueue);
     return IRQ_HANDLED;
 }
 
@@ -886,6 +881,7 @@ static int bi041p_probe(struct i2c_client *client, const struct i2c_device_id *i
 	// initial IRQ
     gpio_tlmm_config(GPIO_CFG(42, 0, GPIO_CFG_INPUT, GPIO_CFG_NO_PULL, GPIO_CFG_2MA), GPIO_CFG_ENABLE);
     
+        bi041p_wq = create_singlethread_workqueue("bi041p_wq");
 	INIT_WORK(&bi041p.wqueue, bi041p_isr_workqueue);
     
     if (request_irq(bi041p.client->irq, bi041p_isr, IRQF_TRIGGER_FALLING, "bi041p", &bi041p))
@@ -972,6 +968,7 @@ static int bi041p_remove(struct i2c_client * client)
 {
 	printk(KERN_INFO "[Touchscreen] %s\n", __func__);
 
+        destroy_workqueue(bi041p_wq);
 #ifdef CONFIG_HAS_EARLYSUSPEND
 	unregister_early_suspend(&bi041p.es);
 #endif
