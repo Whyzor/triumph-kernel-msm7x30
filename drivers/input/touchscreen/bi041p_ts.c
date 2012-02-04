@@ -869,7 +869,7 @@ static int bi041p_probe(struct i2c_client *client, const struct i2c_device_id *i
 	input_set_abs_params(bi041p.input, ABS_MT_TOUCH_MAJOR, 0, 255, 0, 0);
 	input_set_abs_params(bi041p.input, ABS_MT_POSITION_X, TS_MIN_X, TS_MAX_X, 0, 0);
 	input_set_abs_params(bi041p.input, ABS_MT_POSITION_Y, TS_MIN_Y, TS_MAX_Y, 0, 0);
-	input_set_abs_params(bi041p.input, ABS_PRESSURE, 0, 255, 0, 0);
+	input_set_abs_params(bi041p.input, ABS_MT_PRESSURE, 0, 255, 0, 0);
 #endif
 	
 	if (input_register_device(bi041p.input))
