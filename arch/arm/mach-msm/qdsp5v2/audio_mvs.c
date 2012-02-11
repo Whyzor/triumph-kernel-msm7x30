@@ -280,7 +280,12 @@ struct audio_mvs_info_type {
 };
 
 static struct audio_mvs_info_type audio_mvs_info;
-
+//SW3-MM-DL-QctSlowPatch+{
+#ifdef CONFIG_FIH_PROJECT_SF4Y6
+uint32_t tx_cnt = 0;
+uint32_t rx_cnt = 0;
+#endif
+//SW3-MM-DL-QctSlowPatch+}
 static int audio_mvs_setup_amr(struct audio_mvs_info_type *audio)
 {
 	int rc = 0;
@@ -961,7 +966,13 @@ static void audio_mvs_process_rpc_request(uint32_t procedure,
 
 		mutex_lock(&audio->in_lock);
 
+//SW3-MM-DL-QctSlowPatch+{
+#ifdef CONFIG_FIH_PROJECT_SF4Y6
+		if (!list_empty(&audio->in_queue) && (tx_cnt > rx_cnt)) {
+#else
 		if (!list_empty(&audio->in_queue)) {
+#endif
+//SW3-MM-DL-QctSlowPatch+}
 			buf_node = list_first_entry(&audio->in_queue,
 						    struct audio_mvs_buf_node,
 						    list);
@@ -1397,6 +1408,11 @@ int audio_mvs_release(struct inode *inode, struct file *file)
 	audio->state = AUDIO_MVS_CLOSED;
 
 	mutex_unlock(&audio->lock);
+	
+//SW3-MM-DL-QctSlowPatch+{
+	tx_cnt = 0;
+	rx_cnt = 0;
+//SW3-MM-DL-QctSlowPatch+}
 
 	return 0;
 }
@@ -1448,6 +1464,11 @@ static ssize_t audio_mvs_read(struct file *file,
 
 				list_add_tail(&buf_node->list,
 					      &audio->free_out_queue);
+//SW3-MM-DL-QctSlowPatch+{
+#ifdef CONFIG_FIH_PROJECT_SF4Y6
+				tx_cnt++;
+#endif
+//SW3-MM-DL-QctSlowPatch+}
 			} else {
 				pr_err("%s: Read count %d < sizeof(frame) %d",
 				       __func__, count,
@@ -1522,6 +1543,9 @@ ssize_t audio_mvs_read_kernel(
 
 				list_add_tail(&buf_node->list,
 					      &audio->free_out_queue);
+//SW3-MM-DL-QctSlowPatch+{
+				tx_cnt++;
+//SW3-MM-DL-QctSlowPatch+}
 			} else {
 				pr_err("%s: Read count %d < sizeof(frame) %d",
 				       __func__, count,
@@ -1567,7 +1591,13 @@ static ssize_t audio_mvs_write(struct file *file,
 	mutex_lock(&audio->in_lock);
 	if (audio->state == AUDIO_MVS_STARTED) {
 		if (count <= sizeof(struct msm_audio_mvs_frame)) {
+//SW3-MM-DL-QctSlowPatch+{
+#ifdef CONFIG_FIH_PROJECT_SF4Y6
+			if (!list_empty(&audio->free_in_queue) && (tx_cnt >= rx_cnt)) {
+#else
 			if (!list_empty(&audio->free_in_queue)) {
+#endif
+//SW3-MM-DL-QctSlowPatch+}
 				buf_node =
 					list_first_entry(&audio->free_in_queue,
 						struct audio_mvs_buf_node,
@@ -1580,6 +1610,11 @@ static ssize_t audio_mvs_write(struct file *file,
 
 				list_add_tail(&buf_node->list,
 					      &audio->in_queue);
+//SW3-MM-DL-QctSlowPatch+{
+#ifdef CONFIG_FIH_PROJECT_SF4Y6
+				rx_cnt++;
+#endif
+//SW3-MM-DL-QctSlowPatch+}
 			} else {
 				pr_err("%s: No free DL buffs\n", __func__);
 			}
@@ -1617,7 +1652,10 @@ ssize_t audio_mvs_write_kernel(
 	mutex_lock(&audio->in_lock);
 	if (audio->state == AUDIO_MVS_STARTED) {
 		if (count <= sizeof(struct msm_audio_mvs_frame)) {
-			if (!list_empty(&audio->free_in_queue)) {
+//SW3-MM-DL-QctSlowPatch+{
+			//if (!list_empty(&audio->free_in_queue)) {
+			if (!list_empty(&audio->free_in_queue) && (tx_cnt >= rx_cnt)) {
+//SW3-MM-DL-QctSlowPatch+}
 				buf_node =
 					list_first_entry(&audio->free_in_queue,
 						struct audio_mvs_buf_node,
@@ -1628,6 +1666,9 @@ ssize_t audio_mvs_write_kernel(
 				
                 list_add_tail(&buf_node->list,
 					      &audio->in_queue);
+//SW3-MM-DL-QctSlowPatch+{
+				rx_cnt++;
+//SW3-MM-DL-QctSlowPatch+}
 			} else {
 				pr_err("%s: No free DL buffs\n", __func__);
 			}
