@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
 # Linux kernel version: 2.6.32.9
-# Sun Feb 12 09:07:45 2012
+# Sun Feb 19 18:40:35 2012
 #
 CONFIG_ARM=y
 CONFIG_SYS_SUPPORTS_APM_EMULATION=y
@@ -2175,7 +2175,6 @@ CONFIG_STAGING=y
 # CONFIG_ECHO is not set
 # CONFIG_COMEDI is not set
 # CONFIG_ASUS_OLED is not set
-# CONFIG_INPUT_MIMIO is not set
 # CONFIG_TRANZPORT is not set
 
 #
